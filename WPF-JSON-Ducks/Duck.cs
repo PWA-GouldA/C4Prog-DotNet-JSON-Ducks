@@ -42,10 +42,19 @@ namespace WPF_JSON_Ducks
 
     class Duck
     {
+        private Guid _id;
         private string _name;
         private string _colour;
         private int _birthYear;
         private DuckSizes _size;
+
+
+        public Guid ID
+        {
+            get { return _id; }
+            set { _id = value; }
+        }
+
 
         public string Name
         {
@@ -82,6 +91,7 @@ namespace WPF_JSON_Ducks
         }
         public Duck()
         {
+            ID = System.Guid.NewGuid();
             Name = "";
             Colour = "";
             Size = DuckSizes.Error;
@@ -90,6 +100,7 @@ namespace WPF_JSON_Ducks
 
         public Duck(string name, string colour, DuckSizes size, int birthYear)
         {
+            ID = Guid.NewGuid();
             this.Name = name;
             this.Colour = colour;
             Size = size;
@@ -98,6 +109,7 @@ namespace WPF_JSON_Ducks
 
         public Duck(string name, Color colour, DuckSizes size, int birthYear)
         {
+            ID = Guid.NewGuid();
             this.Name = name;
             this.Colour = colour.ToString();
             Size = size;
