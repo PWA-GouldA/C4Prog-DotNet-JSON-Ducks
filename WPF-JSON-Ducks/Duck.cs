@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows.Media;
-using WPF_JSON_Ducks;
 
 namespace WPF_JSON_Ducks
 {
@@ -70,7 +69,8 @@ namespace WPF_JSON_Ducks
 
         public SolidColorBrush ColourSample
         {
-            get {
+            get
+            {
                 SolidColorBrush xx = new SolidColorBrush(
                     (Color)ColorConverter.ConvertFromString(Colour)
                     );
@@ -110,6 +110,16 @@ namespace WPF_JSON_Ducks
         public Duck(string name, Color colour, DuckSizes size, int birthYear)
         {
             ID = Guid.NewGuid();
+            this.Name = name;
+            this.Colour = colour.ToString();
+            Size = size;
+            this.BirthYear = birthYear;
+        }
+
+
+        public Duck(Guid duckID, string name, Color colour, DuckSizes size, int birthYear)
+        {
+            ID = duckID;
             this.Name = name;
             this.Colour = colour.ToString();
             Size = size;

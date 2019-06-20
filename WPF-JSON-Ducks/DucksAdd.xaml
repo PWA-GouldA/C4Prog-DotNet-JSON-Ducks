@@ -1,0 +1,142 @@
+﻿<Controls:MetroWindow x:Class="WPF_JSON_Ducks.DucksAdd"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      
+        
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        mc:Ignorable="d"
+            
+        Title="DucksAdd" Height="450" Width="400">
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+
+            <StatusBarItem Grid.Column="0">
+                <TextBlock Name="CursorPositionLabel" />
+            </StatusBarItem>
+
+        </StatusBar>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Label x:Name="DuckNameLabel" 
+            Content="Name" 
+            HorizontalAlignment="Left" 
+            Margin="10,10,0,0" 
+            VerticalAlignment="Top" 
+            Width="250" Grid.Row="1"/>
+
+            <TextBox
+            x:Name="NameTextbox"
+            AcceptsReturn="True" 
+            HorizontalAlignment="Left"
+            SelectionChanged="NameTextbox_SelectionChanged" 
+            Height="23" 
+            Margin="10,10,0,0" Width="250" Grid.Row="2"/>
+
+            <Label x:Name="DuckSizeLabel" 
+            Content="Duck Size" 
+            HorizontalAlignment="Left" 
+            VerticalAlignment="Top" 
+            Margin="10,10,0,0" 
+            Width="250" Grid.Row="3"/>
+
+            <ComboBox x:Name="SizeComboBox"
+            HorizontalAlignment="Left" 
+            VerticalAlignment="Top" 
+            Margin="10,10,0,0" 
+            Width="250" Grid.Row="4">
+
+                <!-- Values being added by code behind -->
+            </ComboBox>
+
+            <Label x:Name="DuckColourLabel" 
+            Content="Colour" 
+            HorizontalAlignment="Left" 
+            VerticalAlignment="Top" 
+            Margin="10,10,0,0" 
+            Width="250" Grid.Row="5"/>
+
+            <ComboBox x:Name="ColourComboBox" 
+            HorizontalAlignment="Left" 
+            VerticalAlignment="Top"                        
+            Margin="10,10,0,0"
+            Width="250" Grid.Row="6">
+
+                <ComboBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel />
+                    </ItemsPanelTemplate>
+                </ComboBox.ItemsPanel>
+
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel 
+                        Orientation="Horizontal" 
+                        Margin="0,1,0,0">
+
+                            <StackPanel.Resources>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Margin" 
+                                    Value="5,0,0,0"/>
+                                </Style>
+                            </StackPanel.Resources>
+
+                            <Rectangle Width="30" 
+                            Fill="{Binding SampleBrush}"/>
+
+                            <TextBlock Width="120" 
+                            Text="{Binding ColourName}"/>
+
+                            <TextBlock Width="80" 
+                            Text="{Binding HexValue}"/>
+
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+
+            <Button x:Name="AddDuckButton" 
+            Content="Add" 
+            HorizontalAlignment="Left" 
+            VerticalAlignment="Bottom" 
+            Margin="10,10,0,0" 
+            Width="80" 
+            Click="AddDuckButton_Click" Grid.Row="7"/>
+            <Image HorizontalAlignment="Left" Height="100" Margin="282,10,0,0" Grid.Row="1" Grid.RowSpan="3" VerticalAlignment="Top" Width="100">
+                <Image.OpacityMask>
+                    <ImageBrush ImageSource="duckling.ico" Stretch="Uniform"/>
+                </Image.OpacityMask>
+            </Image>
+
+
+        </Grid>
+    </DockPanel>
+</Controls:MetroWindow>

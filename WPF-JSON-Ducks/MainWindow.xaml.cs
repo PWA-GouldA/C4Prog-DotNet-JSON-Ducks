@@ -2,11 +2,12 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Media;
 
 /// <summary>
@@ -33,6 +34,8 @@ using System.Windows.Media;
 ///                licensed by http://creativecommons.org/licenses/by/3.0/ Creative Commons BY 3.0
 ///     https://www.technical-recipes.com/2016/setting-the-application-icon-in-wpf-xaml/
 ///     https://www.zamzar.com/convert/png-to-ico/
+///     https://www.wpf-tutorial.com/listview-control/listview-sorting/
+///     https://www.wpf-tutorial.com/listview-control/listview-filtering/
 ///     
 /// </summary>
 
@@ -50,17 +53,23 @@ namespace WPF_JSON_Ducks
         string duckDirectoryPath = ""; // this is set by the ConfigureFoldersAndFiles method.
         string fullDuckFilePath = ""; // this is set by the ConfigureFoldersAndFiles method.
 
-        bool duckListChanged = false; // this is updated if you add/edit/remove a duck
+        public bool duckListChanged = false; // this is updated if you add/edit/remove a duck
 
         List<Duck> ducks = new List<Duck>();
+
+        private GridViewColumnHeader listViewSortCol = null;
+        private SortAdorner listViewSortAdorner = null;
+
+
 
         public MainWindow()
         {
             InitializeComponent();
             ConfigureFoldersAndFiles();
-            AddColours();
-            AddSizes();
             AddSampleDucks();
+
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(DuckListView.ItemsSource);
+            view.Filter = DuckFilter;
         }
 
         void LoadDucks()
@@ -73,6 +82,8 @@ namespace WPF_JSON_Ducks
                 ducks = (List<Duck>)serializer.Deserialize(file, typeof(List<Duck>));
             }
             DuckListView.ItemsSource = ducks;
+            DuckListView.Items.Refresh();
+            RecordNumberLabel.Text = DuckListView.Items.Count + " Records";
         }
 
         void SaveDucks()
@@ -86,14 +97,9 @@ namespace WPF_JSON_Ducks
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(file, ducks);
             }
+            duckListChanged = false;
         }
 
-        private void NameTextbox_SelectionChanged(object sender, RoutedEventArgs e)
-        {
-            int row = NameTextbox.GetLineIndexFromCharacterIndex(NameTextbox.CaretIndex);
-            int col = NameTextbox.CaretIndex - NameTextbox.GetCharacterIndexFromLineIndex(row);
-            CursorPositionLabel.Text = "Line " + (row + 1) + ", Char " + (col + 1);
-        }
 
         void AddSampleDucks()
         {
@@ -124,7 +130,7 @@ namespace WPF_JSON_Ducks
             RecordNumberLabel.Text = DuckListView.Items.Count + " Records";
         }
 
-        private void ClearDucksButton_Click(object sender, RoutedEventArgs e)
+        private void ClearDucks()
         {
             ducks.Clear();
             DuckListView.Items.Refresh();
@@ -132,35 +138,19 @@ namespace WPF_JSON_Ducks
             duckListChanged = true;
         }
 
-
+        private void ClearDucksButton_Click(object sender, RoutedEventArgs e)
+        {
+            ClearDucks();
+        }
 
         private void LoadDucksButton_Click(object sender, RoutedEventArgs e)
         {
-            ducks.Clear();
             LoadDucks();
-            DuckListView.Items.Refresh();
-            RecordNumberLabel.Text = DuckListView.Items.Count + " Records";
         }
 
         private void SaveDucksButton_Click(object sender, RoutedEventArgs e)
         {
             SaveDucks();
-            duckListChanged = false;
-
-        }
-
-
-        private void AddDuckButton_Click(object sender, RoutedEventArgs e)
-        {
-            string duckName = NameTextbox.Text;
-            string duckColour = ((ColourInfo)ColourComboBox.SelectedValue).ColourName;
-            DuckSizes duckSize = (DuckSizes)SizeComboBox.SelectedIndex;
-
-            ducks.Add(new Duck(duckName, duckColour, duckSize, 0));
-
-            DuckListView.Items.Refresh();
-            duckListChanged = true;
-
         }
 
         private void DeleteDuckButton_Click(object sender, RoutedEventArgs e)
@@ -168,7 +158,7 @@ namespace WPF_JSON_Ducks
             Button button = sender as Button;
             Duck allForADuck = button.DataContext as Duck;
             ducks.Remove(allForADuck);
-            DuckListView.Items.Refresh();
+            CollectionViewSource.GetDefaultView(DuckListView.ItemsSource).Refresh();
             duckListChanged = true;
         }
 
@@ -184,27 +174,10 @@ namespace WPF_JSON_Ducks
         }
 
 
-        void AddSizes()
-        {
-            SizeComboBox.ItemsSource = Enum.GetValues(typeof(DuckSizes));
-        }
-
-        void AddColours()
-        {
-            var color_query =
-                from PropertyInfo property in typeof(Colors).GetProperties()
-                orderby property.Name
-                //orderby ((Color)property.GetValue(null, null)).ToString()
-                select new ColourInfo(
-                    property.Name,
-                    (Color)property.GetValue(null, null));
-            ColourComboBox.ItemsSource = color_query;
-        }
-
         void ConfigureFoldersAndFiles()
         {
             string documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            duckDirectoryPath = documents + @"\"+ @clusterFolder + @"\" + @duckFolder;
+            duckDirectoryPath = documents + @"\\" + @clusterFolder + @"\\" + @duckFolder;
 
             try
             {
@@ -227,12 +200,56 @@ namespace WPF_JSON_Ducks
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            VerifyExitAndSave();
+        }
+
+        private void DuckListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (DuckListView.SelectedIndex != -1)
+            {
+                RecordNumberLabel.Text = "Record " + (DuckListView.SelectedIndex + 1).ToString()
+                    + " of " + DuckListView.Items.Count;
+            }
+            else
+            {
+                RecordNumberLabel.Text = DuckListView.Items.Count + " Records";
+            }
+        }
+
+        private void FileOpenMenu_Click(object sender, RoutedEventArgs e)
+        {
+            LoadDucks();
+            DuckListView.ItemsSource = ducks;
+            DuckListView.Items.Refresh();
+        }
+
+        private void FileSaveMenu_Click(object sender, RoutedEventArgs e)
+        {
+            SaveDucks();
+            DuckListView.ItemsSource = ducks;
+            DuckListView.Items.Refresh();
+        }
+
+        private void FileNewMenu_Click(object sender, RoutedEventArgs e)
+        {
+            ClearDucks();
+            DuckListView.ItemsSource = ducks;
+            DuckListView.Items.Refresh();
+        }
+
+        private void FileExitMenu_Click(object sender, RoutedEventArgs e)
+        {
+            VerifyExitAndSave();
+        }
+
+        private void VerifyExitAndSave()
+        {
             // Determine if the list of ducks has been altered.
             if (duckListChanged)
             {
-                if (MessageBox.Show("Do you wish to save the changes to your ducks?", 
-                    "JaSON Ducks", 
-                    MessageBoxButton.YesNo, 
+                if (MessageBox.Show("Do you wish to save the changes to your ducks?",
+                    "JaSON Ducks",
+                    MessageBoxButton.YesNo,
                     MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     SaveDucks();
@@ -241,17 +258,107 @@ namespace WPF_JSON_Ducks
             }
         }
 
-        private void DuckListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        private bool DuckFilter(object item)
         {
-            if (DuckListView.SelectedIndex != -1)
+            if (String.IsNullOrEmpty(FilterText.Text))
+                return true;
+            else
+                return (item as Duck).Name.IndexOf(FilterText.Text, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private void FilterText_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            CollectionViewSource.GetDefaultView(DuckListView.ItemsSource).Refresh();
+        }
+
+        private void DuckListViewHeader_Click(object sender, RoutedEventArgs e)
+        {
+            GridViewColumnHeader column = (sender as GridViewColumnHeader);
+            string sortBy = column.Tag.ToString();
+            if (listViewSortCol != null)
             {
-                RecordNumberLabel.Text = "Record " + (DuckListView.SelectedIndex + 1).ToString() 
-                    + " of " + DuckListView.Items.Count;
-            } else
-            {
-                RecordNumberLabel.Text =  DuckListView.Items.Count + " Records";
+                AdornerLayer.GetAdornerLayer(listViewSortCol).Remove(listViewSortAdorner);
+                DuckListView.Items.SortDescriptions.Clear();
             }
+
+            ListSortDirection newDir = ListSortDirection.Ascending;
+            if (listViewSortCol == column && listViewSortAdorner.Direction == newDir)
+                newDir = ListSortDirection.Descending;
+
+            listViewSortCol = column;
+            listViewSortAdorner = new SortAdorner(listViewSortCol, newDir);
+            AdornerLayer.GetAdornerLayer(listViewSortCol).Add(listViewSortAdorner);
+            DuckListView.Items.SortDescriptions.Add(new SortDescription(sortBy, newDir));
+        }
+
+        private void ClearFilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            FilterText.Text = "";
+        }
+
+        private void DuckNewMenu_Click(object sender, RoutedEventArgs e)
+        {
+            DucksAdd addWindow = new DucksAdd()
+            {
+                Title = "Create New Duck",
+                ShowTitleBar = true,
+                GlowBrush = new SolidColorBrush(Colors.DodgerBlue),
+                ResizeMode = ResizeMode.NoResize,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            };
+            addWindow.Owner = this;
+            addWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            var res = addWindow.ShowDialog();
+
+            if (res == true)
+            {
+                ducks.Add(addWindow.aDuck);
+                duckListChanged = true;
+                CollectionViewSource.GetDefaultView(DuckListView.ItemsSource).Refresh();
+            }
+
         }
     }
+
+
+
+    public class SortAdorner : Adorner
+    {
+        private static Geometry ascGeometry =
+            Geometry.Parse("M 0 4 L 3.5 0 L 7 4 Z");
+
+        private static Geometry descGeometry =
+            Geometry.Parse("M 0 0 L 3.5 4 L 7 0 Z");
+
+        public ListSortDirection Direction { get; private set; }
+
+        public SortAdorner(UIElement element, ListSortDirection dir)
+            : base(element) => this.Direction = dir;
+
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            base.OnRender(drawingContext);
+
+            if (AdornedElement.RenderSize.Width < 20)
+                return;
+
+            TranslateTransform transform = new TranslateTransform
+                (
+                    AdornedElement.RenderSize.Width - 15,
+                    (AdornedElement.RenderSize.Height - 5) / 2
+                );
+            drawingContext.PushTransform(transform);
+
+            Geometry geometry = ascGeometry;
+            if (this.Direction == ListSortDirection.Descending)
+                geometry = descGeometry;
+            drawingContext.DrawGeometry(Brushes.Black, null, geometry);
+
+            drawingContext.Pop();
+        }
+    }
+
 
 }

@@ -24,17 +24,38 @@
     <DockPanel>
         <!-- Create the Menu bar at the top of the application -->
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_File">
-                <MenuItem Header="_New" />
-                <MenuItem Header="_Open" />
-                <MenuItem Header="_Save" />
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel HorizontalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+            <MenuItem Header="_File"
+                      x:Name="FileMenu">
+                <MenuItem Header="_New" 
+                          x:Name="FileNewMenu"  Click="FileNewMenu_Click"/>
+                <MenuItem x:Name="FileOpenMenu" Header="_Open" Click="FileOpenMenu_Click" />
+                <MenuItem x:Name="FileSaveMenu" Header="_Save"  Click="FileSaveMenu_Click" />
                 <Separator />
-                <MenuItem Header="E_xit" />
+                <MenuItem x:Name="FileExitMenu" Header="E_xit"  Click="FileExitMenu_Click" />
             </MenuItem>
-            <MenuItem Header="_Edit">
+            <MenuItem Header="_Ducks"
+                      x:Name="DuckMenu">
+                <MenuItem Header="_New" 
+                          x:Name="DuckNewMenu" Click="DuckNewMenu_Click" />
+            </MenuItem>
+            <MenuItem Header="_Edit"
+                      x:Name="EditMenu">
                 <MenuItem Header="_Cut" />
                 <MenuItem Header="_Copy" />
                 <MenuItem Header="_Paste" />
+            </MenuItem>
+            <MenuItem Header="_Help"  
+                      x:Name="HelpMenu"
+                      HorizontalAlignment="Right"
+                       FlowDirection="RightToLeft">
+                <MenuItem Header="_About..." 
+                          x:Name="HelpAboutMenu"
+                          FlowDirection="LeftToRight"/>
             </MenuItem>
         </Menu>
 
@@ -95,113 +116,16 @@
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-
-            <Label x:Name="DuckNameLabel" 
-                   Content="Name" 
-                   Grid.Column="1" 
-                   HorizontalAlignment="Left" 
-                   Margin="10,10,0,0" 
-                   VerticalAlignment="Top" 
-                   Width="244"/>
-
-            <TextBox
-                x:Name="NameTextbox" 
-                Grid.Column="1"
-                AcceptsReturn="True" 
-                SelectionChanged="NameTextbox_SelectionChanged" 
-                Height="23" 
-                Margin="10,40,10,0"/>
-
-            <Label x:Name="DuckSizeLabel" 
-                   Content="Duck Size" 
-                   HorizontalAlignment="Left" 
-                   VerticalAlignment="Top" 
-                   Margin="10,10,0,0" 
-                   Grid.Row="1" 
-                   Grid.Column="1" 
-                   Width="244"/>
-
-            <ComboBox x:Name="SizeComboBox"
-                      HorizontalAlignment="Left" 
-                      VerticalAlignment="Top" 
-                      Margin="10,40,0,0" 
-                      Grid.Row="1" 
-                      Grid.Column="1" 
-                      Width="244">
-
-                <!-- Values being added by code behind -->
-            </ComboBox>
-
-            <Label x:Name="DuckColourLabel" 
-                   Content="Colour" 
-                   HorizontalAlignment="Left" 
-                   VerticalAlignment="Top" 
-                   Margin="10,10,0,0" 
-                   Grid.Row="2"
-                   Grid.Column="1" 
-                   Width="244"/>
-
-            <ComboBox x:Name="ColourComboBox" 
-                      HorizontalAlignment="Left" 
-                      VerticalAlignment="Top"                        
-                      Margin="10,40,0,0" 
-                      Grid.Column="1" 
-                      Grid.Row="2"
-                      Width="244">
-
-                <ComboBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <VirtualizingStackPanel />
-                    </ItemsPanelTemplate>
-                </ComboBox.ItemsPanel>
-
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel 
-                            Orientation="Horizontal" 
-                            Margin="0,1,0,0">
-
-                            <StackPanel.Resources>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Margin" 
-                                            Value="5,0,0,0"/>
-                                </Style>
-                            </StackPanel.Resources>
-
-                            <Rectangle Width="30" 
-                                       Fill="{Binding SampleBrush}"/>
-
-                            <TextBlock Width="120" 
-                                       Text="{Binding ColourName}"/>
-
-                            <TextBlock Width="80" 
-                                       Text="{Binding HexValue}"/>
-
-                        </StackPanel>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-
-
-            <Button x:Name="AddDuckButton" 
-                    Content="Add" 
-                    HorizontalAlignment="Left" 
-                    VerticalAlignment="Bottom" 
-                    Grid.Row="4" 
-                    Grid.Column="1" 
-                    Margin="10,0,0,29" 
-                    Width="80" 
-                    Click="AddDuckButton_Click"/>
 
             <Button x:Name="LoadDucksButton" 
                     Content="Load Ducks" 
                     HorizontalAlignment="Left" 
                     VerticalAlignment="Top" 
-                    Grid.Column="0" 
-                    Grid.Row="4" 
-                    Margin="10,10,0,0" 
+                    Grid.Column="1" 
+                    Grid.Row="5" 
+                    Margin="3,3,0,0" 
                     Width="80" 
                     Click="LoadDucksButton_Click"/>
 
@@ -209,9 +133,9 @@
                     Content="Save Ducks" 
                     HorizontalAlignment="Left" 
                     VerticalAlignment="Top" 
-                    Grid.Column="0" 
-                    Grid.Row="4" 
-                    Margin="100,10,0,0" 
+                    Grid.Column="1" 
+                    Grid.Row="5" 
+                    Margin="93,3,0,0" 
                     Width="80" 
                     Click="SaveDucksButton_Click"/>
 
@@ -219,27 +143,30 @@
                     Content="Clear Ducks" 
                     HorizontalAlignment="Left" 
                     VerticalAlignment="Top" 
-                    Grid.Column="0" 
-                    Grid.Row="4" 
-                    Margin="190,10,0,0" 
+                    Grid.Column="1" 
+                    Grid.Row="5" 
+                    Margin="183,3,0,0" 
                     Width="80" 
                     Click="ClearDucksButton_Click"/>
 
             <ListView Margin="10" 
                       x:Name="DuckListView" 
-                      Grid.RowSpan="4" SelectionChanged="DuckListView_SelectionChanged">
+                      Grid.Row="1"
+                      Grid.RowSpan="3" SelectionChanged="DuckListView_SelectionChanged">
                 <ListView.View>
                     <GridView>
 
                         <GridViewColumn 
-                            Header="Name" 
                             Width="150" 
-                            DisplayMemberBinding="{Binding Name}" />
+                            DisplayMemberBinding="{Binding Name}">
+                            <GridViewColumnHeader Tag="Name" Click="DuckListViewHeader_Click">Name</GridViewColumnHeader>
+                        </GridViewColumn>
 
                         <GridViewColumn 
-                            Header="Size" 
                             Width="76" 
-                            DisplayMemberBinding="{Binding Size}" />
+                            DisplayMemberBinding="{Binding Size}">
+                            <GridViewColumnHeader Tag="Size" Click="DuckListViewHeader_Click">Size</GridViewColumnHeader>
+                        </GridViewColumn>
 
                         <GridViewColumn 
                             Header=" ">
@@ -253,9 +180,10 @@
                         </GridViewColumn>
 
                         <GridViewColumn 
-                            Header="Colour" 
                             Width="150" 
-                            DisplayMemberBinding="{Binding Colour}" />
+                            DisplayMemberBinding="{Binding Colour}">
+                            <GridViewColumnHeader Tag="Colour" Click="DuckListViewHeader_Click">Colour</GridViewColumnHeader>
+                        </GridViewColumn>
 
 
                         <GridViewColumn 
@@ -273,7 +201,7 @@
                                             <ColumnDefinition Width="4"></ColumnDefinition>
                                             <ColumnDefinition Width="auto"></ColumnDefinition>
                                         </Grid.ColumnDefinitions>
-                                        
+
                                         <Button Click="ViewDuckButton_Click"
                                                 Grid.Column="0"
                                                 Height="24" Width="24"
@@ -287,7 +215,7 @@
                                                                         Height="16" 
                                                                         Foreground="White" />
                                         </Button>
-                                        
+
                                         <Button Click="EditDuckButton_Click"
                                                 Grid.Column="2"
                                                 Height="24" Width="24"
@@ -295,7 +223,7 @@
                                                  Style="{DynamicResource MahApps.Metro.Styles.MetroCircleButtonStyle}">
                                             <iconPacks:PackIconMaterial Kind="Pen" VerticalAlignment="Center" HorizontalAlignment="Center"  Width="16" Height="16" Foreground="White" />
                                         </Button>
-                                        
+
                                         <Button Click="DeleteDuckButton_Click"
                                                 Grid.Column="4"
                                                 Height="24" Width="24"
@@ -303,7 +231,7 @@
                                                  Style="{DynamicResource MahApps.Metro.Styles.MetroCircleButtonStyle}">
                                             <iconPacks:PackIconMaterial Kind="Delete" VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16" Foreground="White"/>
                                         </Button>
-                                        
+
                                     </Grid>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
@@ -314,10 +242,26 @@
             </ListView>
 
             <!-- DO NOT ADD THESE LABELS - THEY ARE FOR INFORMATION ONLY -->
-            <Label Content="LoadDucksButton" HorizontalAlignment="Left" Margin="10,42,0,0" Grid.Row="4" VerticalAlignment="Top" FontSize="9" Background="#FFFFFDD3" Foreground="Red"/>
-            <Label Content="SaveDucksButton" HorizontalAlignment="Left" Margin="101,42,0,0" Grid.Row="4" VerticalAlignment="Top" FontSize="9" Background="#FFFFFDD3" Foreground="Red"/>
-            <Label Content="ClearDucksButton" HorizontalAlignment="Left" Margin="190,42,0,0" Grid.Row="4" VerticalAlignment="Top" FontSize="9" Background="#FFFFFDD3" Foreground="Red" RenderTransformOrigin="0.5,0.5"/>
-            <Label Content="AddDuckButton" HorizontalAlignment="Left" Margin="10,42,0,0" Grid.Row="4" VerticalAlignment="Top" FontSize="9" Grid.Column="1" Background="#FFFFFDD3" Foreground="Red"/>
+            <Label Content="LoadDucksButton" HorizontalAlignment="Left" Margin="3,35,0,0" Grid.Row="5" VerticalAlignment="Top" FontSize="9" Background="#FFFFFDD3" Foreground="Red" Grid.Column="1"/>
+            <Label Content="SaveDucksButton" HorizontalAlignment="Left" Margin="94,35,0,0" Grid.Row="5" VerticalAlignment="Top" FontSize="9" Background="#FFFFFDD3" Foreground="Red" Grid.Column="1"/>
+            <Label Content="ClearDucksButton" HorizontalAlignment="Left" Margin="183,35,0,0" Grid.Row="5" VerticalAlignment="Top" FontSize="9" Background="#FFFFFDD3" Foreground="Red" RenderTransformOrigin="0.5,0.5" Grid.Column="1"/>
+
+            <Button 
+                Content="Clear Filter" 
+                x:Name="ClearFilterButton"
+                HorizontalAlignment="Left" 
+                Margin="443,30,0,10" 
+                VerticalAlignment="Center" 
+                Width="75" Click="ClearFilterButton_Click"/>
+            <TextBox 
+                x:Name="FilterText"
+                HorizontalAlignment="Left" 
+                Height="23" 
+                Margin="261,30,0,10" 
+                TextWrapping="NoWrap" 
+                Text="" 
+                VerticalAlignment="Center" 
+                Width="177" TextChanged="FilterText_TextChanged"/>
 
         </Grid>
 
